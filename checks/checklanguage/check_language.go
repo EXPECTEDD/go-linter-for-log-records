@@ -18,17 +18,17 @@ var Analyzer = &analysis.Analyzer{
 func run(pass *analysis.Pass) (interface{}, error) {
 	for _, f := range pass.Files {
 		ast.Inspect(f, func(n ast.Node) bool {
-			call, ok := n.(*ast.CallExpr)
+			call, ok := n.(*ast.CallExpr) // проверяем вызов функции
 			if !ok {
 				return true
 			}
 
-			selector, ok := call.Fun.(*ast.SelectorExpr)
+			selector, ok := call.Fun.(*ast.SelectorExpr) // проверяем что вызов имеет две части (имеет .)
 			if !ok {
 				return true
 			}
 
-			pack, ok := selector.X.(*ast.Ident)
+			pack, ok := selector.X.(*ast.Ident) // получаем название пакета
 			if !ok {
 				return true
 			}
