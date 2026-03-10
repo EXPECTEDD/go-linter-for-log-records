@@ -90,5 +90,7 @@ func walkExpr(expr ast.Expr, result *[]*ast.Ident) {
 	case *ast.SelectorExpr:
 		*result = append(*result, v.Sel)
 		walkExpr(v.X, result)
+	case *ast.ParenExpr:
+		walkExpr(v.X, result)
 	}
 }
