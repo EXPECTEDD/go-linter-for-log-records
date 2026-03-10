@@ -35,7 +35,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 			if pack.Name == checks.ExpPackageName && slices.Contains(checks.ExpLevelsNames, selector.Sel.Name) {
 				text := call.Args[0].(*ast.BasicLit)
 				if len(text.Value) > 2 {
-					for _, r := range text.Value[1 : len(text.Value)-2] {
+					for _, r := range text.Value[1 : len(text.Value)-1] {
 						if !checkIsEng(r) {
 							pass.Reportf(call.Pos(), "the log must contain only English characters - %s", text.Value)
 							return true
