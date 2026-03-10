@@ -35,20 +35,27 @@ func run(pass *analysis.Pass) (interface{}, error) {
 			}
 
 			if pack.Name == checks.ExpPackageName && slices.Contains(checks.ExpLevelsNames, selector.Sel.Name) {
-				text := call.Args[0].(*ast.BasicLit)
-				if gomoji.ContainsEmoji(text.Value[1 : len(text.Value)-1]) {
-					pass.Reportf(call.Pos(), "the log contains emoji - %s", text.Value)
-					return true
+				resBasLit := make([]*ast.BasicLit, 0)
+
+				for _, arg := range call.Args {
+					walkExpr(arg, &resBasLit)
 				}
-				textRune := []rune(text.Value[1 : len(text.Value)-1])
-				for _, r := range textRune {
-					if checkSpecialCharactersOrEmoji(r) {
-						pass.Reportf(call.Pos(), "the log contains special character - %s", text.Value)
+
+				for _, b := range resBasLit {
+					if gomoji.ContainsEmoji(b.Value[1 : len(b.Value)-1]) {
+						pass.Reportf(call.Pos(), "the log contains emoji - %s", b.Value)
 						return true
+					}
+
+					textRune := []rune(b.Value[1 : len(b.Value)-1])
+					for _, r := range textRune {
+						if checkSpecialCharactersOrEmoji(r) {
+							pass.Reportf(call.Pos(), "the log contains special character - %s", b.Value)
+							return true
+						}
 					}
 				}
 			}
-
 			return true
 		})
 	}
@@ -60,4 +67,19 @@ func checkSpecialCharactersOrEmoji(r rune) bool {
 		return true
 	}
 	return false
+}
+
+func walkExpr(expr ast.Expr, result *[]*ast.BasicLit) {
+	switch v := expr.(type) {
+	case *ast.BasicLit:
+		*result = append(*result, v)
+	case *ast.BinaryExpr:
+		walkExpr(v.X, result)
+		walkExpr(v.Y, result)
+	case *ast.CallExpr:
+		walkExpr(v.Fun, result)
+		for _, arg := range v.Args {
+			walkExpr(arg, result)
+		}
+	}
 }
