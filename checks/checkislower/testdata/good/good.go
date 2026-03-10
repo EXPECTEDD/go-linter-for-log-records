@@ -16,55 +16,55 @@ func hello() string {
 }
 
 func zapLog() {
-	log, _ := zap.NewProduction()
+	zapLog, _ := zap.NewProduction()
 	strHello := "hello"
 	strWorld := "world"
 	strSome := "So123MeSTR"
 
 	str := testStruct{str: "hello"}
 
-	log.Info("hello World")
-	log.Warn("hello" + "World")
-	log.Debug("hELLO WORLD")
-	log.Error("hello" + "world")
-	log.Info("123")
-	log.Warn("890" + "HELLO")
-	log.Error("hello" + "WORLD")
-	log.Debug("hEllo" + "World")
-	log.Info(("hello World"))
-	log.Warn(strHello + "World")
-	log.Debug(strHello + strWorld)
-	log.Error(strSome)
-	log.Info("hello" + str.str)
-	log.Warn((str.str) + "hello")
-	log.Debug(("hello") + "world")
-	log.Error(hello() + "world")
-	log.Info("world" + hello())
+	zapLog.Info("hello World")
+	zapLog.Warn("hello" + "World")
+	zapLog.Debug("hELLO WORLD")
+	zapLog.Error("hello" + "world")
+	zapLog.Info("123")
+	zapLog.Warn("890" + "HELLO")
+	zapLog.Error("hello" + "WORLD")
+	zapLog.Debug("hEllo" + "World")
+	zapLog.Info(("hello World"))
+	zapLog.Warn(strHello + "World")
+	zapLog.Debug(strHello + strWorld)
+	zapLog.Error(strSome)
+	zapLog.Info("hello" + str.str)
+	zapLog.Warn((str.str) + "hello")
+	zapLog.Debug(("hello") + "world")
+	zapLog.Error(hello() + "world")
+	zapLog.Info("world" + hello())
 }
 
 func slogLog() {
-	log := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
+	slogLog := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
 	strHello := "hello"
 	strWorld := "world"
 	strSome := "So123MeSTR"
 
 	str := testStruct{str: "hello"}
 
-	log.Info("hello World")
-	log.Warn("hello", "World")
-	log.Debug("hELLO WORLD")
-	log.Error("hello" + "world")
-	log.Info("123")
-	log.Warn("890", "HELLO")
-	log.Error("hello" + "WORLD")
-	log.Debug("hEllo" + "World")
-	log.Info(("hello World"))
-	log.Warn(strHello, "World")
-	log.Debug(strHello + strWorld)
-	log.Error(strSome)
-	log.Info("hello" + str.str)
-	log.Warn((str.str) + "hello")
-	log.Debug(("hello") + "world")
-	log.Error(hello() + "world")
-	log.Info("world", hello())
+	slogLog.Info("hello World")
+	slogLog.Warn("hello", "World")
+	slogLog.Debug("hELLO WORLD")
+	slogLog.Error("hello" + "world")
+	slogLog.Info("123")
+	slogLog.Warn("890", "HELLO")
+	slogLog.Error("hello" + "WORLD")
+	slogLog.Debug("hEllo" + "World")
+	slogLog.Info(("hello World"))
+	slogLog.Warn(strHello, "World")
+	slogLog.Debug(strHello + strWorld)
+	slogLog.Error(strSome)
+	slogLog.Info("hello" + str.str)
+	slogLog.Warn((str.str) + "hello")
+	slogLog.Debug(("hello") + "world")
+	slogLog.Error(hello() + "world")
+	slogLog.Info("world", hello())
 }
