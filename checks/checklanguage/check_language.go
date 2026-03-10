@@ -34,12 +34,18 @@ func run(pass *analysis.Pass) (interface{}, error) {
 			}
 
 			if pack.Name == checks.ExpPackageName && slices.Contains(checks.ExpLevelsNames, selector.Sel.Name) {
-				text := call.Args[0].(*ast.BasicLit)
-				if len(text.Value) > 2 {
-					for _, r := range text.Value[1 : len(text.Value)-1] {
-						if unicode.IsLetter(r) && !checkIsEng(r) {
-							pass.Reportf(call.Pos(), "the log must contain only English characters - %s", text.Value)
-							return true
+				resBasLit := make([]*ast.BasicLit, 0)
+
+				for _, arg := range call.Args {
+					walkExpr(arg, &resBasLit)
+				}
+				for _, b := range resBasLit {
+					if len(b.Value) > 2 {
+						for _, r := range b.Value[1 : len(b.Value)-1] {
+							if unicode.IsLetter(r) && !checkIsEng(r) {
+								pass.Reportf(call.Pos(), "the log must contain only English characters - %s", b.Value)
+								return true
+							}
 						}
 					}
 				}
@@ -56,4 +62,19 @@ func checkIsEng(r rune) bool {
 		return true
 	}
 	return false
+}
+
+func walkExpr(expr ast.Expr, result *[]*ast.BasicLit) {
+	switch v := expr.(type) {
+	case *ast.BasicLit:
+		*result = append(*result, v)
+	case *ast.BinaryExpr:
+		walkExpr(v.X, result)
+		walkExpr(v.Y, result)
+	case *ast.CallExpr:
+		walkExpr(v.Fun, result)
+		for _, arg := range v.Args {
+			walkExpr(arg, result)
+		}
+	}
 }
