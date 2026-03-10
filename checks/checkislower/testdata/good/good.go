@@ -11,6 +11,10 @@ type testStruct struct {
 	str string
 }
 
+func hello() string {
+	return "hello"
+}
+
 func zapLog() {
 	log, _ := zap.NewProduction()
 	strHello := "hello"
@@ -34,6 +38,8 @@ func zapLog() {
 	log.Info("hello" + str.str)
 	log.Warn((str.str) + "hello")
 	log.Debug(("hello") + "world")
+	log.Error(hello() + "world")
+	log.Info("world" + hello())
 }
 
 func slogLog() {
@@ -59,4 +65,6 @@ func slogLog() {
 	log.Info("hello" + str.str)
 	log.Warn((str.str) + "hello")
 	log.Debug(("hello") + "world")
+	log.Error(hello() + "world")
+	log.Info("world", hello())
 }
