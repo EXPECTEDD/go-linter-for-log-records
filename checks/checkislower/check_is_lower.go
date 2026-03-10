@@ -34,10 +34,9 @@ func run(pass *analysis.Pass) (interface{}, error) {
 			}
 
 			if pack.Name == checks.ExpPackageName && slices.Contains(checks.ExpLevelsNames, selector.Sel.Name) {
-				text := call.Args[0].(*ast.BasicLit) // получаем первый аргумент функции
-				textRune := []rune(text.Value)
+				textRune := []rune(walkExpr(call.Args[0])) // получаем первый аргумент функции
 				if len(textRune) > 2 && unicode.IsUpper(textRune[1]) {
-					pass.Reportf(call.Pos(), "log must start with a lowercase letter - %s", text.Value)
+					pass.Reportf(call.Pos(), "log must start with a lowercase letter - %s", string(textRune))
 				}
 			}
 
@@ -45,4 +44,14 @@ func run(pass *analysis.Pass) (interface{}, error) {
 		})
 	}
 	return nil, nil
+}
+
+func walkExpr(expr ast.Expr) string {
+	switch v := expr.(type) {
+	case *ast.BasicLit:
+		return v.Value
+	case *ast.BinaryExpr:
+		return walkExpr(v.X)
+	}
+	return ""
 }
