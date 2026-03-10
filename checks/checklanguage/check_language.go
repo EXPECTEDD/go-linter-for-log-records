@@ -4,6 +4,7 @@ import (
 	"go/ast"
 	"linter/checks"
 	"slices"
+	"unicode"
 
 	"golang.org/x/tools/go/analysis"
 )
@@ -36,7 +37,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 				text := call.Args[0].(*ast.BasicLit)
 				if len(text.Value) > 2 {
 					for _, r := range text.Value[1 : len(text.Value)-1] {
-						if !checkIsEng(r) {
+						if unicode.IsLetter(r) && !checkIsEng(r) {
 							pass.Reportf(call.Pos(), "the log must contain only English characters - %s", text.Value)
 							return true
 						}
