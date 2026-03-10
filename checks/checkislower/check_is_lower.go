@@ -3,8 +3,10 @@ package checkislower
 import (
 	"go/ast"
 	"go/token"
+	"go/types"
 	"linter/checks"
 	"slices"
+	"strings"
 	"unicode"
 
 	"golang.org/x/tools/go/analysis"
@@ -29,12 +31,39 @@ func run(pass *analysis.Pass) (interface{}, error) {
 				return true
 			}
 
-			pack, ok := selector.X.(*ast.Ident) // получаем название пакета
+			// Получаем информацию о типе в дереве
+			obj := pass.TypesInfo.Uses[selector.Sel]
+			if obj == nil {
+				return true
+			}
+
+			// Проверяем что это функция и получаем ее
+			fn, ok := obj.(*types.Func)
 			if !ok {
 				return true
 			}
 
-			if pack.Name == checks.ExpPackageName && slices.Contains(checks.ExpLevelsNames, selector.Sel.Name) {
+			// Получаем сигнатуру функции
+			sig := fn.Type().(*types.Signature)
+			if sig == nil {
+				return true
+			}
+
+			// Получаем ресеивер функции, пример func (l *Logger) <- receiver
+			recv := sig.Recv()
+			if recv == nil {
+				return true
+			}
+
+			// Получаем тип
+			loggerType := recv.Type()
+			if loggerType == nil {
+				return true
+			}
+
+			typeStrs := strings.Split(loggerType.String(), "/")
+
+			if slices.Contains(checks.ExpPackageName, typeStrs[len(typeStrs)-1]) && slices.Contains(checks.ExpLevelsNames, selector.Sel.Name) {
 				textRune := []rune(walkExpr(call.Args[0])) // получаем первый аргумент функции
 				if len(textRune) > 2 && unicode.IsUpper(textRune[1]) {
 					pass.Reportf(call.Pos(), "log must start with a lowercase letter - %s", string(textRune))

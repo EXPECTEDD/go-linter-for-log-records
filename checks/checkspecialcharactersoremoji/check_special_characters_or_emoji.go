@@ -2,8 +2,10 @@ package checkspecialcharactersoremoji
 
 import (
 	"go/ast"
+	"go/types"
 	"linter/checks"
 	"slices"
+	"strings"
 	"unicode"
 
 	"github.com/forPelevin/gomoji"
@@ -29,12 +31,34 @@ func run(pass *analysis.Pass) (interface{}, error) {
 				return true
 			}
 
-			pack, ok := selector.X.(*ast.Ident) // получаем название пакета
+			obj := pass.TypesInfo.Uses[selector.Sel]
+			if obj == nil {
+				return true
+			}
+
+			fn, ok := obj.(*types.Func)
 			if !ok {
 				return true
 			}
 
-			if pack.Name == checks.ExpPackageName && slices.Contains(checks.ExpLevelsNames, selector.Sel.Name) {
+			sig := fn.Type().(*types.Signature)
+			if sig == nil {
+				return true
+			}
+
+			recv := sig.Recv()
+			if recv == nil {
+				return true
+			}
+
+			loggerType := recv.Type()
+			if loggerType == nil {
+				return true
+			}
+
+			typeStrs := strings.Split(loggerType.String(), "/")
+
+			if slices.Contains(checks.ExpPackageName, typeStrs[len(typeStrs)-1]) && slices.Contains(checks.ExpLevelsNames, selector.Sel.Name) {
 				resBasLit := make([]*ast.BasicLit, 0)
 
 				for _, arg := range call.Args {
