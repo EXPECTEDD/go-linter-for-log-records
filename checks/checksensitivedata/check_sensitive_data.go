@@ -4,6 +4,7 @@ import (
 	"go/ast"
 	"linter/checks"
 	"slices"
+	"strings"
 
 	"golang.org/x/tools/go/analysis"
 )
@@ -38,7 +39,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 					walkExpr(arg, &result)
 				}
 				for _, ident := range result {
-					if slices.Contains(checks.ListSensetiveData, ident.Name) {
+					if slices.Contains(checks.ListSensetiveData, strings.ToLower(ident.Name)) {
 						pass.Reportf(call.Pos(), "the log contains sensitive data - %s", ident.Name)
 						return true
 					}
