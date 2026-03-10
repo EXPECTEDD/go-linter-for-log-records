@@ -2,14 +2,11 @@ package checkislower
 
 import (
 	"go/ast"
+	"linter/checks"
 	"slices"
+	"unicode"
 
 	"golang.org/x/tools/go/analysis"
-)
-
-var (
-	expPackageName = "log"
-	expLevelsNames = []string{"Info", "Error", "Warn", "Debug"}
 )
 
 var Analyzer = &analysis.Analyzer{
@@ -36,9 +33,10 @@ func run(pass *analysis.Pass) (interface{}, error) {
 				return true
 			}
 
-			if pack.Name == expPackageName && slices.Contains(expLevelsNames, selector.Sel.Name) {
+			if pack.Name == checks.ExpPackageName && slices.Contains(checks.ExpLevelsNames, selector.Sel.Name) {
 				text := call.Args[0].(*ast.BasicLit) // получаем первый аргумент функции
-				if len(text.Value) > 2 && (text.Value[1] < 'a' || text.Value[1] > 'z') {
+				textRune := []rune(text.Value)
+				if len(textRune) > 2 && unicode.IsUpper(textRune[1]) {
 					pass.Reportf(call.Pos(), "log must start with a lowercase letter - %s", text.Value)
 				}
 			}
