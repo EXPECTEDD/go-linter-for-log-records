@@ -2,6 +2,7 @@ package checkislower
 
 import (
 	"go/ast"
+	"go/token"
 	"linter/checks"
 	"slices"
 	"unicode"
@@ -49,8 +50,12 @@ func run(pass *analysis.Pass) (interface{}, error) {
 func walkExpr(expr ast.Expr) string {
 	switch v := expr.(type) {
 	case *ast.BasicLit:
-		return v.Value
+		if v.Kind == token.STRING {
+			return v.Value
+		}
 	case *ast.BinaryExpr:
+		return walkExpr(v.X)
+	case *ast.ParenExpr:
 		return walkExpr(v.X)
 	}
 	return ""
