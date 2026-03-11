@@ -1,0 +1,6 @@
+version: v2.11.3
+
+plugins:
+  - module: linter
+    import: linter/plugin
+    path: .

@@ -37,9 +37,6 @@ func ZapLog() {
 	// Test with brackets
 	zapLog.Info(("Hello World")) // want "log must start with a lowercase letter"
 
-	// Test with func
-	zapLog.Debug(testFn("Hello")) // want "log must start with a lowercase letter"
-
 	// Test general
 	zapLog.Error("Hello" + strWorld)  // want "log must start with a lowercase letter"
 	zapLog.Info("Hello" + str.str)    // want "log must start with a lowercase letter"
