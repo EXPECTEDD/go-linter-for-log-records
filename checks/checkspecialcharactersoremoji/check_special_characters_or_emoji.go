@@ -105,5 +105,7 @@ func walkExpr(expr ast.Expr, result *[]*ast.BasicLit) {
 		for _, arg := range v.Args {
 			walkExpr(arg, result)
 		}
+	case *ast.ParenExpr:
+		walkExpr(v.X, result)
 	}
 }
