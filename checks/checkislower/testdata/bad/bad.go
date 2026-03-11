@@ -15,6 +15,10 @@ func hello() string {
 	return "hello"
 }
 
+func testFn(s string) string {
+	return s
+}
+
 func ZapLog() {
 	zapLog, _ := zap.NewProduction()
 	strWorld := "world"
@@ -32,6 +36,9 @@ func ZapLog() {
 
 	// Test with brackets
 	zapLog.Info(("Hello World")) // want "log must start with a lowercase letter"
+
+	// Test with func
+	zapLog.Debug(testFn("Hello")) // want "log must start with a lowercase letter"
 
 	// Test general
 	zapLog.Error("Hello" + strWorld)  // want "log must start with a lowercase letter"
@@ -57,6 +64,9 @@ func SlogLog() {
 
 	// Test with brackets
 	slogLog.Info(("Hello World")) // want "log must start with a lowercase letter"
+
+	// Test with func
+	slogLog.Debug(testFn("Hello")) // want "log must start with a lowercase letter"
 
 	// Test with enum
 	slogLog.Debug("Hello", "world")                                 // want "log must start with a lowercase letter"

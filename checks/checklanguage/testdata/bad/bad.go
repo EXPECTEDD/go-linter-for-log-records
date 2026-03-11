@@ -15,6 +15,10 @@ func world() string {
 	return "world"
 }
 
+func testFunc(s string) string {
+	return s
+}
+
 func ZapLog() {
 	zapLog, _ := zap.NewProduction()
 	strWorld := "world"
@@ -34,6 +38,9 @@ func ZapLog() {
 
 	// Test with brackets
 	zapLog.Info(("Hello Мир")) // want "the log must contain only English characters"
+
+	// Test with func
+	zapLog.Debug(testFunc("你好世界")) // want "the log must contain only English characters"
 
 	// Test general
 	zapLog.Error("Heллo!!" + strWorld) // want "the log must contain only English characters"
