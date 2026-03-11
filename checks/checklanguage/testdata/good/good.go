@@ -16,55 +16,95 @@ func hello() string {
 }
 
 func zapLog() {
-	log, _ := zap.NewProduction()
+	zapLog, _ := zap.NewProduction()
 	strHello := "hello"
 	strWorld := "world"
 	strSome := "So123MeSTR"
 
 	str := testStruct{str: "hello"}
 
-	log.Info("hello World")
-	log.Warn("hello" + "World")
-	log.Debug("hELLO WORLD")
-	log.Error("hello" + "world")
-	log.Info("123")
-	log.Warn("890" + "HELLO")
-	log.Error("Hello" + "WORLD")
-	log.Debug("hEllo" + "World")
-	log.Info(("hello World"))
-	log.Warn(strHello + "World")
-	log.Debug(strHello + strWorld)
-	log.Error(strSome)
-	log.Info("Hello" + str.str)
-	log.Warn((str.str) + "hello")
-	log.Debug(("hello") + "world")
-	log.Error(hello() + "world")
-	log.Info("world" + hello())
+	// Test defaul
+	zapLog.Info("hello World")
+	zapLog.Debug("hELLO WORLD")
+
+	// Test with numbers
+	zapLog.Info("123")
+	zapLog.Warn("890" + "HELLO")
+
+	// Test with +
+	zapLog.Warn("hello" + "World")
+	zapLog.Error("hello" + "world")
+	zapLog.Error("hello" + "WORLD")
+	zapLog.Debug("hEllo" + "World")
+
+	// Test with brackets
+	zapLog.Info(("hello World"))
+
+	// Test with struct
+	zapLog.Info(str.str)
+
+	// Test with var
+	zapLog.Debug(strHello)
+	zapLog.Error(strSome)
+
+	// Test with func
+	zapLog.Warn(hello())
+
+	// Test general
+	zapLog.Warn(strHello + "World")
+	zapLog.Debug(strHello + strWorld)
+	zapLog.Info("hello" + str.str)
+	zapLog.Warn((str.str) + "hello")
+	zapLog.Debug(("hello") + "world")
+	zapLog.Error(hello() + "world")
+	zapLog.Info("world" + hello())
 }
 
 func slogLog() {
-	log := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
+	slogLog := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
 	strHello := "hello"
 	strWorld := "world"
 	strSome := "So123MeSTR"
 
 	str := testStruct{str: "hello"}
 
-	log.Info("Hello World")
-	log.Warn("hello", "World")
-	log.Debug("hELLO WORLD")
-	log.Error("hello" + "world")
-	log.Info("123")
-	log.Warn("890", "HELLO")
-	log.Error("Hello" + "WORLD")
-	log.Debug("hEllo" + "World")
-	log.Info(("Hello World"))
-	log.Warn(strHello, "World")
-	log.Debug(strHello + strWorld)
-	log.Error(strSome)
-	log.Info("hello" + str.str)
-	log.Warn((str.str) + "hello")
-	log.Debug(("hello") + "world")
-	log.Error(hello() + "world")
-	log.Info("world", hello())
+	// Test defaul
+	slogLog.Info("hello World")
+	slogLog.Debug("hELLO WORLD")
+
+	// Test with numbers
+	slogLog.Info("123")
+	slogLog.Warn("890" + "HELLO")
+
+	// Test with +
+	slogLog.Warn("hello" + "World")
+	slogLog.Error("hello" + "world")
+	slogLog.Error("hello" + "WORLD")
+	slogLog.Debug("hEllo" + "World")
+
+	// Test with brackets
+	slogLog.Info(("hello World"))
+
+	// Test with struct
+	slogLog.Info(str.str)
+
+	// Test with var
+	slogLog.Debug(strHello)
+	slogLog.Error(strSome)
+
+	// Test with func
+	slogLog.Warn(hello())
+
+	// Test enum
+	slogLog.Info("hello", "world")
+	slogLog.Error("he", "llo", "wor", "ld")
+
+	// Test general
+	slogLog.Warn(strHello + "World")
+	slogLog.Debug(strHello + strWorld)
+	slogLog.Info("hello", str.str)
+	slogLog.Warn((str.str) + "hello")
+	slogLog.Debug(("hello") + "world")
+	slogLog.Error(hello(), "world")
+	slogLog.Info("world" + hello())
 }
