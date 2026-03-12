@@ -4,10 +4,22 @@ linters:
   default: none
 
   enable:
-    - mylinter
+    - checkislower
+    - checklanguage
+    - checksensitivedata
+    - checkspecialcharactersoremoji
 
   settings:
     custom:
-      mylinter:
+      checkislower:
         type: module
-        description: My custom linter.
+        description: Linter to check for lowercase letters at the beginning of a message.
+      checklanguage:
+        type: module
+        description: Linter to check that the text is in English.
+      checksensitivedata:
+        type: module
+        description: Linter for checking sensitive data.
+      checkspecialcharactersoremoji:
+        type: module
+        description: Linter for checking for special characters and emoji.
