@@ -75,17 +75,19 @@ func run(pass *analysis.Pass) (interface{}, error) {
 				}
 
 				for _, b := range resBasLit {
-					if gomoji.ContainsEmoji(b.Value[1 : len(b.Value)-1]) {
-						pass.Reportf(call.Pos(), "the log contains emoji - %s", b.Value)
-						return true
-					}
-
-					textRune := []rune(b.Value[1 : len(b.Value)-1])
-					for _, r := range textRune {
-						if checkSpecialCharactersOrEmoji(r) {
-							pass.Reportf(call.Pos(), "the log contains special character - %s", b.Value)
+					if len([]rune(b.Value)) >= 2 {
+						if gomoji.ContainsEmoji(b.Value[1 : len(b.Value)-1]) {
+							pass.Reportf(call.Pos(), "the log contains emoji - %s", b.Value)
 							return true
 						}
+						
+						textRune := []rune(b.Value[1 : len(b.Value)-1])
+						for _, r := range textRune {
+							if checkSpecialCharactersOrEmoji(r) {
+								pass.Reportf(call.Pos(), "the log contains special character - %s", b.Value)
+								return true
+							}
+						}	
 					}
 				}
 			}
