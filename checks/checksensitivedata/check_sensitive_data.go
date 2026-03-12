@@ -44,19 +44,28 @@ func run(pass *analysis.Pass) (interface{}, error) {
 				return true
 			}
 
+			pkg := obj.Pkg()
+			if pkg == nil {
+				return true
+			}
+
+			isFunc := false
+			if (pkg.Path() == "log/slog" || pkg.Path() == "go.uber.org/zap") && slices.Contains(checks.ExpLevelsNames, selector.Sel.Name) {
+				isFunc = true
+			}
+
+			isLoggerMethod := false
 			recv := sig.Recv()
-			if recv == nil {
-				return true
+			if recv != nil {
+				loggerType := recv.Type()
+				typeStrs := strings.Split(loggerType.String(), "/")
+				if slices.Contains(checks.ExpPackageName, typeStrs[len(typeStrs)-1]) && slices.Contains(checks.ExpLevelsNames, selector.Sel.Name) {
+					isLoggerMethod = true
+				}
 			}
 
-			loggerType := recv.Type()
-			if loggerType == nil {
-				return true
-			}
-
-			typeStrs := strings.Split(loggerType.String(), "/")
-
-			if slices.Contains(checks.ExpPackageName, typeStrs[len(typeStrs)-1]) && slices.Contains(checks.ExpLevelsNames, selector.Sel.Name) {
+			// Если это вызов slog.Debug() или logger.Debug()
+			if isFunc || isLoggerMethod {
 				result := make([]*ast.Ident, 0)
 				for _, arg := range call.Args {
 					walkExpr(arg, &result)

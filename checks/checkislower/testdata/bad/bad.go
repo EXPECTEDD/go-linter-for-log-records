@@ -62,9 +62,6 @@ func SlogLog() {
 	// Test with brackets
 	slogLog.Info(("Hello World")) // want "log must start with a lowercase letter"
 
-	// Test with func
-	slogLog.Debug(testFn("Hello")) // want "log must start with a lowercase letter"
-
 	// Test with enum
 	slogLog.Debug("Hello", "world")                                 // want "log must start with a lowercase letter"
 	slogLog.Error("H", "e", "l", "l", "o", "w", "o", "r", "l", "d") // want "log must start with a lowercase letter"

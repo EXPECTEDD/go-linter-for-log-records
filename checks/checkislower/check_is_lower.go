@@ -21,50 +21,58 @@ var Analyzer = &analysis.Analyzer{
 func run(pass *analysis.Pass) (interface{}, error) {
 	for _, file := range pass.Files {
 		ast.Inspect(file, func(n ast.Node) bool {
-			call, ok := n.(*ast.CallExpr) // проверяем вызов функции
+			call, ok := n.(*ast.CallExpr)
 			if !ok {
 				return true
 			}
 
-			selector, ok := call.Fun.(*ast.SelectorExpr) // проверяем что вызов имеет две части (имеет .)
+			selector, ok := call.Fun.(*ast.SelectorExpr)
 			if !ok {
 				return true
 			}
 
-			// Получаем информацию о типе в дереве
 			obj := pass.TypesInfo.Uses[selector.Sel]
 			if obj == nil {
 				return true
 			}
 
-			// Проверяем что это функция и получаем ее
 			fn, ok := obj.(*types.Func)
 			if !ok {
 				return true
 			}
 
-			// Получаем сигнатуру функции
 			sig := fn.Type().(*types.Signature)
 			if sig == nil {
 				return true
 			}
 
-			// Получаем ресеивер функции, пример func (l *Logger) <- receiver
+			pkg := obj.Pkg()
+			if pkg == nil {
+				return true
+			}
+
+			isFunc := false
+			if (pkg.Path() == "log/slog" || pkg.Path() == "go.uber.org/zap") && slices.Contains(checks.ExpLevelsNames, selector.Sel.Name) {
+				isFunc = true
+			}
+
+			isLoggerMethod := false
 			recv := sig.Recv()
-			if recv == nil {
-				return true
+			if recv != nil {
+				loggerType := recv.Type()
+				typeStrs := strings.Split(loggerType.String(), "/")
+				if slices.Contains(checks.ExpPackageName, typeStrs[len(typeStrs)-1]) && slices.Contains(checks.ExpLevelsNames, selector.Sel.Name) {
+					isLoggerMethod = true
+				}
 			}
 
-			// Получаем тип
-			loggerType := recv.Type()
-			if loggerType == nil {
-				return true
-			}
+			// Если это вызов slog.Debug() или logger.Debug()
+			if isFunc || isLoggerMethod {
+				if len(call.Args) == 0 {
+					return true
+				}
 
-			typeStrs := strings.Split(loggerType.String(), "/")
-
-			if slices.Contains(checks.ExpPackageName, typeStrs[len(typeStrs)-1]) && slices.Contains(checks.ExpLevelsNames, selector.Sel.Name) {
-				textRune := []rune(walkExpr(call.Args[0])) // получаем первый аргумент функции
+				textRune := []rune(walkExpr(call.Args[0]))
 				if len(textRune) > 2 && unicode.IsUpper(textRune[1]) {
 					pass.Reportf(call.Pos(), "log must start with a lowercase letter - %s", string(textRune))
 				}
