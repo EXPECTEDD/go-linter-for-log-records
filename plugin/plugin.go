@@ -10,27 +10,29 @@ import (
 	"golang.org/x/tools/go/analysis"
 )
 
-type plugin struct{}
+type plugin struct {
+	analyzers []*analysis.Analyzer
+}
 
 func init() {
-	register.Plugin("mylinter", New)
+	register.Plugin("checkislower", newPlugin(checkislower.Analyzer))
+	register.Plugin("checklanguage", newPlugin(checklanguage.Analyzer))
+	register.Plugin("checksensitivedata", newPlugin(checksensitivedata.Analyzer))
+	register.Plugin("checkspecialcharactersoremoji", newPlugin(checkspecialcharactersoremoji.Analyzer))
 }
 
-func New(settings any) (register.LinterPlugin, error) {
-	return &plugin{}, nil
+func newPlugin(a *analysis.Analyzer) func(any) (register.LinterPlugin, error) {
+	return func(settings any) (register.LinterPlugin, error) {
+		return &plugin{
+			analyzers: []*analysis.Analyzer{a},
+		}, nil
+	}
 }
 
-var _ register.LinterPlugin = (*plugin)(nil)
-
-func (*plugin) BuildAnalyzers() ([]*analysis.Analyzer, error) {
-	return []*analysis.Analyzer{
-		checkislower.Analyzer,
-		checklanguage.Analyzer,
-		checksensitivedata.Analyzer,
-		checkspecialcharactersoremoji.Analyzer,
-	}, nil
+func (p *plugin) BuildAnalyzers() ([]*analysis.Analyzer, error) {
+	return p.analyzers, nil
 }
 
-func (*plugin) GetLoadMode() string {
+func (p *plugin) GetLoadMode() string {
 	return register.LoadModeTypesInfo
 }
